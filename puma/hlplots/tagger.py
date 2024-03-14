@@ -115,12 +115,15 @@ class Tagger:
 
         for aux_type in self.aux_tasks:
             if aux_type == "vertexing":
-                if self.name in {"SV1", "JF"}:
+                if self.name in {"SV1", "JF", "GN1"}:
                     aux_outputs[aux_type] = f"{self.name}VertexIndex"
                 else:
                     aux_outputs[aux_type] = f"{self.name}_VertexIndex"
             elif aux_type == "track_origin":
-                aux_outputs[aux_type] = f"{self.name}_TrackOrigin"
+                if self.name in {"GN1"}:
+                    aux_outputs[aux_type] = f"{self.name}OriginLabel"
+                else:
+                    aux_outputs[aux_type] = f"{self.name}_TrackOrigin"
             else:
                 raise ValueError(f"{aux_type} is not a recognized aux task.")
 

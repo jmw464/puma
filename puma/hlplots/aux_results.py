@@ -66,8 +66,8 @@ class AuxResults:
         taggers: list[Tagger],
         file_path: Path | str,
         key="jets",
-        label_var="HadronConeExclTruthLabelID",
-        aux_key="tracks",
+        label_var="flavour",
+        aux_key="nodes",
         cuts: Cuts | list | None = None,
         num_jets: int | None = None,
         perf_vars: dict | None = None,
@@ -123,7 +123,7 @@ class AuxResults:
         # get a list of all variables to be loaded from the file
         if not isinstance(cuts, Cuts):
             cuts = Cuts.empty() if cuts is None else Cuts.from_list(cuts)
-        var_list = [label_var]
+        var_list = [label_var, "n_tracks"]
         var_list += cuts.variables
         var_list += sum([t.cuts.variables for t in taggers if t.cuts is not None], [])
         var_list = list(set(var_list + self.perf_vars))
@@ -136,9 +136,28 @@ class AuxResults:
 
         # load data
         reader = H5Reader(file_path, precision="full")
-        data = reader.load({key: var_list}, num_jets)[key]
+        data_unproc = reader.load({key: var_list}, 2000000)[key]
         aux_reader = H5Reader(file_path, precision="full", jets_name=aux_key)
-        aux_data = aux_reader.load({aux_key: aux_var_list}, num_jets)[aux_key]
+        aux_data_unproc = aux_reader.load({aux_key: aux_var_list}, 13835937)[aux_key]
+
+        data = np.full(500000, -1, dtype=data_unproc.dtype)
+        aux_data = np.full((500000, 40), -1, dtype=aux_data_unproc.dtype)
+
+        track_i = 0
+        for i in range(data.size):
+            data[i] = data_unproc[i]
+            ntracks = data_unproc[i]["n_tracks"]
+            aux_data["truthOriginLabel"][i,:ntracks] = aux_data_unproc["truthOriginLabel"][track_i:track_i+ntracks]
+            aux_data["truthVertexIndex"][i,:ntracks] = aux_data_unproc["truthVertexIndex"][track_i:track_i+ntracks]
+            aux_data["GN1VertexIndex"][i,:ntracks] = aux_data_unproc["GN1VertexIndex"][track_i:track_i+ntracks]
+            aux_data["JFVertexIndex"][i,:ntracks] = aux_data_unproc["JFVertexIndex"][track_i:track_i+ntracks]
+            aux_data["SV1VertexIndex"][i,:ntracks] = aux_data_unproc["SV1VertexIndex"][track_i:track_i+ntracks]
+            track_i += ntracks
+
+        s = 0
+        print(data["flavour"][s])
+        print(aux_data["truthOriginLabel"][s])
+        print(aux_data["truthVertexIndex"][s])
 
         # check for nan values
         data = check_nan(data)
@@ -174,7 +193,7 @@ class AuxResults:
                 tagger.perf_vars = {}
                 for perf_var in self.perf_vars:
                     if any(x in perf_var for x in ["pt", "mass"]):
-                        tagger.perf_vars[perf_var] = sel_data[perf_var] * 0.001
+                        tagger.perf_vars[perf_var] = sel_data[perf_var] #* 0.001
                     else:
                         tagger.perf_vars[perf_var] = sel_data[perf_var]
             else:
