@@ -302,12 +302,12 @@ def clean_reco_vertices(reco_vertices, reco_track_origin=None, incl_vertexing=Fa
     if reco_track_origin is not None:
 
         # remove single track vertices
-        unique_indices, unique_counts = np.unique(reco_vertices, return_counts=True)
-        reco_vertices = clean_indices(
-            reco_vertices,
-            np.isin(reco_vertices, unique_indices[unique_counts == 1]),
-            mode="remove",
-        )
+        #unique_indices, unique_counts = np.unique(reco_vertices, return_counts=True)
+        #reco_vertices = clean_indices(
+        #    reco_vertices,
+        #    np.isin(reco_vertices, unique_indices[unique_counts == 1]),
+        #    mode="remove",
+        #)
 
         # remove vertex with most reco PV tracks
         pv_candidate_indices, pv_candidate_counts = np.unique(

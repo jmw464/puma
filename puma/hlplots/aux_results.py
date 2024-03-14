@@ -135,13 +135,13 @@ class AuxResults:
         aux_var_list = list(set(aux_var_list))
 
         # load data
-        reader = H5Reader(file_path, precision="full")
+        reader = H5Reader(file_path, precision="full", shuffle=False)
         data_unproc = reader.load({key: var_list}, 2000000)[key]
-        aux_reader = H5Reader(file_path, precision="full", jets_name=aux_key)
+        aux_reader = H5Reader(file_path, precision="full", jets_name=aux_key, shuffle=False)
         aux_data_unproc = aux_reader.load({aux_key: aux_var_list}, 13835937)[aux_key]
 
-        data = np.full(500000, -1, dtype=data_unproc.dtype)
-        aux_data = np.full((500000, 40), -1, dtype=aux_data_unproc.dtype)
+        data = np.full(50000, -1, dtype=data_unproc.dtype)
+        aux_data = np.full((50000, 40), -1, dtype=aux_data_unproc.dtype)
 
         track_i = 0
         for i in range(data.size):
@@ -149,15 +149,11 @@ class AuxResults:
             ntracks = data_unproc[i]["n_tracks"]
             aux_data["truthOriginLabel"][i,:ntracks] = aux_data_unproc["truthOriginLabel"][track_i:track_i+ntracks]
             aux_data["truthVertexIndex"][i,:ntracks] = aux_data_unproc["truthVertexIndex"][track_i:track_i+ntracks]
+            aux_data["GN1OriginLabel"][i,:ntracks] = aux_data_unproc["GN1OriginLabel"][track_i:track_i+ntracks]
             aux_data["GN1VertexIndex"][i,:ntracks] = aux_data_unproc["GN1VertexIndex"][track_i:track_i+ntracks]
             aux_data["JFVertexIndex"][i,:ntracks] = aux_data_unproc["JFVertexIndex"][track_i:track_i+ntracks]
             aux_data["SV1VertexIndex"][i,:ntracks] = aux_data_unproc["SV1VertexIndex"][track_i:track_i+ntracks]
             track_i += ntracks
-
-        s = 0
-        print(data["flavour"][s])
-        print(aux_data["truthOriginLabel"][s])
-        print(aux_data["truthVertexIndex"][s])
 
         # check for nan values
         data = check_nan(data)
