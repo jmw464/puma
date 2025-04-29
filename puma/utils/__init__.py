@@ -13,6 +13,8 @@ from puma.utils.generate import (
     get_dummy_multiclass_scores,
 )
 from puma.utils.logging import logger, set_log_level
+from puma.utils.confusion_matrix import confusion_matrix
+from puma.utils.precision_recall_scores import precision_recall_scores_per_class
 
 
 def set_xaxis_ticklabels_invisible(ax):

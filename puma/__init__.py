@@ -13,6 +13,8 @@ from puma.roc import Roc, RocPlot
 from puma.var_vs_eff import VarVsEff, VarVsEffPlot
 from puma.var_vs_var import VarVsVar, VarVsVarPlot
 from puma.var_vs_vtx import VarVsVtx, VarVsVtxPlot
+from puma.matshow import MatshowPlot
+from puma.metrics import calc_rej
 
 __all__ = [
     "Histogram",
